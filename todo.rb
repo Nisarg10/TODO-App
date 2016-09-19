@@ -1,19 +1,19 @@
 module Menu
       def menu
-            " Welcome to the TodoList Program!
-            This menu will help you use the Task List System
-            1) Add
-            2) Show
-            3) Delete
-            4) Write to File
-            5) Read from File
-            Q) Quit "
-          end
+        " Welcome to the TodoLister Program!
+        This menu will help you use the Task List System
+        1) Add
+        2) Show
+        3) Delete
+        4) Write to File
+        5) Read from File
+        Q) Quit "
+      end
+
       def show
         menu
       end
     end
-
 
     module Promptable
       def prompt(message = "Just the facts, ma'am.", symbol = ':> ')
@@ -22,7 +22,6 @@ module Menu
         gets.chomp
       end
     end
-
 
     class List
       attr_reader :all_tasks
@@ -35,24 +34,23 @@ module Menu
         all_tasks << task
       end
 
+      def delete(task_number)
+        all_tasks.delete_at(task_number - 1)
+      end
+
       def show
-        all_tasks.map.with_index {|l,i| "(#{i.next}): #{l}"}
+        all_tasks.map.with_index { |l, i| "(#{i.next}): #{l}"}
       end
 
       def write_to_file(filename)
         IO.write(filename, @all_tasks.map(&:to_s).join("\n"))
       end
 
-      def delete(task_number)
-          all_tasks.delete_at(task_number - 1)
-        end
-
       def read_from_file(filename)
         IO.readlines(filename).each do |line|
           add(Task.new(line.chomp))
         end
       end
-
     end
 
     class Task
@@ -68,34 +66,31 @@ module Menu
     end
 
     if __FILE__ == $PROGRAM_NAME
-        include Promptable
-        include Menu
-        my_list = List.new
-        puts 'Please choose from the following list'
-        until ['q'].include?(user_input = prompt(show).downcase)
-          case user_input
-            when '1'
-              my_list.add(Task.new(prompt('What is the task you would like 
-              to accomplish?')))
-            when '2'
-              puts my_list.show
-            when '3'
-              puts my_list.show
-              my_list.delete(prompt('Which task to delete?').to_i)
-            when '4'
-              my_list.write_to_file(prompt 'What is the filename to 
-              write to?')
-            when '5'
-              begin
-                my_list.read_from_file(prompt('What is the filename to 
-                read from?'))
-              rescue Errno::ENOENT
-                puts 'File name not found, please verify your file name 
-                and path.'
-              end
-              puts 'Try again, I did not understand.'
-            end
-            prompt('Press enter to continue', '')
+      include Menu
+      include Promptable
+      ml = List.new
+      puts 'Please choose from the following list'
+      until ['q'].include?(user_input = prompt(show).downcase)
+        case user_input
+        when '1'
+          ml.add(Task.new(prompt('What is the task you would like to accomplish?')))
+        when '2'
+          puts ml.show
+        when '3'
+          puts ml.show
+          ml.delete(prompt('Which task to delete?').to_i)
+        when '4'
+          ml.write_to_file(prompt 'What is the filename to write to?')
+        when '5'
+          begin
+            ml.read_from_file(prompt('What is the filename to read from?'))
+          rescue Errno::ENOENT
+            puts 'File name not found, please verify your file name and path.'
           end
-          puts 'Outro - Thanks for using the menu system!'
+        else
+          puts 'Try again, I did not understand.'
+        end
+        prompt('Press enter to continue', '')
       end
+      puts 'Outro - Thanks for using the awesome menu system!'
+    end
