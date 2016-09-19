@@ -4,9 +4,10 @@ module Menu
         This menu will help you use the Task List System
         1) Add
         2) Show
-        3) Delete
-        4) Write to File
-        5) Read from File
+        3) Update
+        4) Delete
+        5) Write to File
+        6) Read from File
         Q) Quit "
       end
 
@@ -38,6 +39,10 @@ module Menu
         all_tasks.delete_at(task_number - 1)
       end
 
+      def update(task_number, task)
+          all_tasks[task_number - 1] = task
+      end
+
       def show
         all_tasks.map.with_index { |l, i| "(#{i.next}): #{l}"}
       end
@@ -66,31 +71,39 @@ module Menu
     end
 
     if __FILE__ == $PROGRAM_NAME
-      include Menu
-      include Promptable
-      ml = List.new
-      puts 'Please choose from the following list'
-      until ['q'].include?(user_input = prompt(show).downcase)
-        case user_input
-        when '1'
-          ml.add(Task.new(prompt('What is the task you would like to accomplish?')))
-        when '2'
-          puts ml.show
-        when '3'
-          puts ml.show
-          ml.delete(prompt('Which task to delete?').to_i)
-        when '4'
-          ml.write_to_file(prompt 'What is the filename to write to?')
-        when '5'
-          begin
-            ml.read_from_file(prompt('What is the filename to read from?'))
-          rescue Errno::ENOENT
-            puts 'File name not found, please verify your file name and path.'
+          include Promptable
+          include Menu
+          ml = List.new
+          puts 'Please choose from the following list'
+          until ['q'].include?(user_input = prompt(show).downcase)
+            case user_input
+            when '1'
+              ml.add(Task.new(prompt('What is the task you would like 
+              to accomplish?')))
+            when '2'
+              puts ml.show
+            when '3'
+              puts ml.show
+              ml.update(prompt('Which task to update?').to_i, 
+              Task.new(prompt('Task Description?')))
+            when '4'
+              puts ml.show
+              ml.delete(prompt('Which task to delete?').to_i)
+            when '5'
+              ml.write_to_file(prompt 'What is the filename to 
+              write to?')
+            when '6'
+              begin
+                ml.read_from_file(prompt('What is the filename to 
+                read from?'))
+              rescue Errno::ENOENT
+                puts 'File name not found, please verify your file 
+                name and path.'
+              end
+            else
+              puts 'Try again, I did not understand.'
+            end
+            prompt('Press enter to continue', '')
           end
-        else
-          puts 'Try again, I did not understand.'
-        end
-        prompt('Press enter to continue', '')
-      end
-      puts 'Outro - Thanks for using the awesome menu system!'
+          puts 'Outro - Thanks for using the awesome menu system!'
     end
